@@ -9,30 +9,22 @@ export function AboutSection() {
     {
       icon: Coffee,
       title: 'Cà phê chất lượng',
-      titleEn: 'Quality Coffee',
       description: 'Hạt cà phê được chọn lọc kỹ càng từ những vùng trồng nổi tiếng',
-      descriptionEn: 'Carefully selected coffee beans from renowned growing regions'
     },
     {
       icon: Heart,
       title: 'Pha chế tâm huyết',
-      titleEn: 'Crafted with Passion',
       description: 'Mỗi ly cà phê được pha chế với tình yêu và sự tỉ mỉ',
-      descriptionEn: 'Every cup is crafted with love and attention to detail'
     },
     {
       icon: Users,
-      title: 'Không gian ấm cúng',
-      titleEn: 'Cozy Atmosphere',
+      title: 'Không gian thoáng đã',
       description: 'Môi trường thân thiện, lý tưởng cho việc thư giãn và làm việc',
-      descriptionEn: 'Friendly environment, perfect for relaxation and work'
     },
     {
       icon: Award,
       title: 'Dịch vụ tận tâm',
-      titleEn: 'Dedicated Service',
       description: 'Đội ngũ nhân viên nhiệt tình, luôn sẵn sàng phục vụ',
-      descriptionEn: 'Enthusiastic staff, always ready to serve'
     }
   ];
 
