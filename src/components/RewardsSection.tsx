@@ -52,10 +52,10 @@ export function RewardsSection() {
           className="text-center mb-8 md:mb-12"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white mb-4">
-            Doi thuong
+            Đổi thưởng
           </h2>
           <p className="text-base md:text-lg text-gray-600 dark:text-gray-400">
-            Tich diem moi don hang
+            Tích điểm trên mỗi đơn hàng
           </p>
         </motion.div>
 
@@ -64,7 +64,7 @@ export function RewardsSection() {
             <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full shadow-lg user-info-stable">
               <Star className="h-5 w-5 md:h-6 md:w-6 fill-current" aria-hidden={true} />
               <span className="text-lg md:text-xl font-bold stable-text points-display">
-                Diem cua ban: {user.points}
+                Điểm của bạn: {user.points}
               </span>
             </div>
           </div>
@@ -98,7 +98,7 @@ export function RewardsSection() {
                   />
                   <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-black/20 backdrop-blur-sm rounded-full px-2 md:px-3 py-1">
                     <span className="text-white text-sm font-semibold">
-                      {reward.pointsRequired} diem
+                      {reward.pointsRequired} điểm
                     </span>
                   </div>
                 </div>
@@ -126,13 +126,13 @@ export function RewardsSection() {
                     >
                       <Gift className="h-4 w-4" aria-hidden={true} />
                       {isRedeeming === reward.id
-                        ? 'Dang doi...'
-                        : 'Doi thuong'
+                        ? 'Đang đổi...'
+                        : 'Đổi thưởng'
                       }
                     </motion.button>
                   ) : (
                     <div className="text-center text-gray-500 dark:text-gray-400 text-sm py-3">
-                      Dang nhap de doi thuong
+                      Đăng nhập để đổi thưởng
                     </div>
                   )}
                 </div>
