@@ -4,6 +4,7 @@ import { Hero } from './components/Hero';
 const MenuSection = React.lazy(() => import('./components/MenuSection').then(m => ({ default: m.MenuSection })));
 const AboutSection = React.lazy(() => import('./components/AboutSection').then(m => ({ default: m.AboutSection })));
 // const RewardsSection = React.lazy(() => import('./components/RewardsSection').then(m => ({ default: m.RewardsSection })));
+const ReviewsSection = React.lazy(() => import('./components/ReviewsSection').then(m => ({ default: m.ReviewsSection })));
 const ContactSection = React.lazy(() => import('./components/ContactSection').then(m => ({ default: m.ContactSection })));
 // const LoginModal = React.lazy(() => import('./components/LoginModal').then(m => ({ default: m.LoginModal })));
 const OrderModal = React.lazy(() => import('./components/OrderModal').then(m => ({ default: m.OrderModal })));
@@ -78,6 +79,12 @@ function App() {
                   <RewardsSection />
                 </Suspense>
               </section> */}
+
+              <section id="reviews">
+                <Suspense fallback={<div className="section-wrap"><div className="section-container"><div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" /></div></div>}>
+                  <ReviewsSection />
+                </Suspense>
+              </section>
 
               <section id="contact">
                 <Suspense fallback={<div className="section-wrap"><div className="section-container"><div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" /></div></div>}>

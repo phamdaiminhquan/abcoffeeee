@@ -61,12 +61,13 @@ export interface OrderItem {
 }
 
 export interface Review {
-  id: string;
-  userId: string;
-  menuItemId: string;
+  id: string | number;
+  userName: string;
+  userAvatar: string;
   rating: number;
   comment: string;
-  createdAt: Date;
+  images: string[];
+  date?: string | Date;
 }
 
 export interface Reward {
