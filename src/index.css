@@ -13,11 +13,11 @@
 @layer components {
   /* Standard section wrapper spacing */
   .section-wrap {
-    @apply py-20 px-4;
+    @apply py-20;
   }
   /* Standard container for sections */
   .section-container {
-    @apply container max-w-7xl;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
   /* Premium button with shine and depth */

@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
 interface TikTokSectionProps {
   videoUrls?: string[];
@@ -8,6 +8,7 @@ interface TikTokSectionProps {
 
 interface TikTokItem {
   id: string;
+  embedUrl: string;
   originalUrl: string;
   username?: string;
   label: string;
@@ -17,7 +18,13 @@ const DEFAULT_TIKTOK_URLS: string[] = [
   'https://www.tiktok.com/@phamdaiminhquan/video/7183560487106252058?_r=1&_t=ZS-91OPcR3W1gH',
   'https://www.tiktok.com/@phamdaiminhquan/video/7170287020118396186?_r=1&_t=ZS-91OPi0PgNWb',
   'https://www.tiktok.com/@phamdaiminhquan/video/7225064022821965061?_r=1&_t=ZS-91OPmSGfhdh',
+  'https://www.tiktok.com/@phamdaiminhquan/video/7225064022821965061?_r=1&_t=ZS-91OPmSGfhdh',
+  'https://www.tiktok.com/@phamdaiminhquan/video/7225064022821965061?_r=1&_t=ZS-91OPmSGfhdh',
 ];
+
+const CARD_WIDTH = 320;
+const CARD_HEIGHT = 575;
+const SCROLL_STEP = CARD_WIDTH + 20;
 
 const containerVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -30,7 +37,11 @@ const containerVariants = {
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' },
+  },
 } as const;
 
 const parseTikTokUrl = (url: string): TikTokItem | null => {
@@ -58,9 +69,11 @@ const parseTikTokUrl = (url: string): TikTokItem | null => {
 
     const canonicalUrl = `https://www.tiktok.com/${userSegment ?? ''}/video/${videoId}`;
     const label = username ? `TikTok vui nhộn của @${username}` : `TikTok vui nhộn #${videoId.slice(0, 4)}`;
+    const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?lang=vi-VN&referrer=cafe-sang`;
 
     return {
       id: videoId,
+      embedUrl,
       originalUrl: canonicalUrl,
       username,
       label,
@@ -82,33 +95,25 @@ function TikTokCard({ video, index }: TikTokCardProps) {
       variants={cardVariants}
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.6, ease: 'easeOut', delay: index * 0.1 }}
-      className="relative"
+      viewport={{ once: true, amount: 0.05 }}
+      transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.08 }}
+      className="relative flex-shrink-0"
+      style={{ width: CARD_WIDTH, minWidth: CARD_WIDTH, maxWidth: CARD_WIDTH }}
     >
-      <blockquote
-        className="tiktok-embed rounded-2xl overflow-hidden"
-        cite={video.originalUrl}
-        data-video-id={video.id}
-        style={{ maxWidth: 505, minWidth: 280, margin: '0 auto' }}
+      <div
+        className="relative overflow-hidden rounded-2xl border border-gray-200/70 dark:border-gray-800 shadow-soft bg-black/5 dark:bg-white/5"
+        style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
       >
-        <section>
-          <a href={video.originalUrl} target="_blank" rel="noreferrer">
-            Xem video TikTok
-          </a>
-        </section>
-      </blockquote>
-
-      <div className="mt-3 text-right">
-        <a
-          href={video.originalUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
-        >
-          <span>Xem trên TikTok</span>
-          <ExternalLink className="h-4 w-4" aria-hidden={true} />
-        </a>
+        <iframe
+          src={video.embedUrl}
+          title={video.label}
+          scrolling="no"
+          loading="eager"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen={true}
+          className="h-full w-full border-0"
+          style={{ marginTop: -1 }}
+        />
       </div>
     </motion.div>
   );
@@ -132,25 +137,51 @@ export function TikTokSection({ videoUrls }: TikTokSectionProps) {
     }, []);
   }, [inputUrls]);
 
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [scrollState, setScrollState] = useState({ canScrollPrev: false, canScrollNext: false });
+
+  const updateScrollState = useCallback(() => {
+    const node = scrollRef.current;
+    if (!node) {
+      return;
+    }
+
+    const { scrollLeft, scrollWidth, clientWidth } = node;
+    const maxScrollLeft = scrollWidth - clientWidth;
+
+    setScrollState({
+      canScrollPrev: scrollLeft > 4,
+      canScrollNext: scrollLeft < maxScrollLeft - 4,
+    });
+  }, []);
+
   useEffect(() => {
-    if (videos.length === 0) {
+    updateScrollState();
+
+    const node = scrollRef.current;
+    if (!node) {
       return;
     }
 
-    const scriptSrc = 'https://www.tiktok.com/embed.js';
-    const existingScript = document.querySelector<HTMLScriptElement>(`script[src="${scriptSrc}"]`);
+    node.addEventListener('scroll', updateScrollState, { passive: true });
+    const handleResize = () => updateScrollState();
+    window.addEventListener('resize', handleResize);
 
-    if (!existingScript) {
-      const script = document.createElement('script');
-      script.src = scriptSrc;
-      script.async = true;
-      document.body.appendChild(script);
+    return () => {
+      node.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [updateScrollState]);
+
+  const scrollByStep = useCallback((direction: 'prev' | 'next') => {
+    const node = scrollRef.current;
+    if (!node) {
       return;
     }
 
-    const globalWindow = window as Window & { tiktokEmbedLoad?: () => void };
-    globalWindow.tiktokEmbedLoad?.();
-  }, [videos]);
+    const offset = direction === 'prev' ? -SCROLL_STEP : SCROLL_STEP;
+    node.scrollBy({ left: offset, behavior: 'smooth' });
+  }, []);
 
   return (
     <motion.section
@@ -184,10 +215,38 @@ export function TikTokSection({ videoUrls }: TikTokSectionProps) {
             Chưa có video TikTok nào được chia sẻ. Hãy quay lại sau nhé!
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-            {videos.map((video, index) => (
-              <TikTokCard key={video.id} video={video} index={index} />
-            ))}
+          <div className="relative -mx-4 md:-mx-6 px-4 md:px-6">
+            <button
+              type="button"
+              onClick={() => scrollByStep('prev')}
+              disabled={!scrollState.canScrollPrev}
+              className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:scale-[1.02] disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"
+              aria-label="Xem video trước"
+            >
+              <ChevronLeft className="h-5 w-5" aria-hidden={true} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => scrollByStep('next')}
+              disabled={!scrollState.canScrollNext}
+              className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:scale-[1.02] disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"
+              aria-label="Xem video tiếp theo"
+            >
+              <ChevronRight className="h-5 w-5" aria-hidden={true} />
+            </button>
+
+            <div
+              ref={scrollRef}
+              className="tiktok-scroll flex flex-row overflow-x-auto overflow-y-hidden gap-[5px] scroll-smooth snap-x snap-mandatory touch-pan-x [scrollbar-width:none] [-ms-overflow-style:none] pl-4 pr-12 md:pl-8 md:pr-20"
+              role="list"
+            >
+              {videos.map((video, index) => (
+                <div key={video.id} className="snap-start" role="listitem">
+                  <TikTokCard video={video} index={index} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
